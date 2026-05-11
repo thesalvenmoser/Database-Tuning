@@ -21,11 +21,19 @@ python -m pip install -r requirements.txt
 ```
 
 ``` bash
+docker compose up
+```
+
+``` bash
 python createDB.py
 ```
 
 ``` bash
 python clientsim.py
+```
+
+``` bash
+deactivate
 ```
 
 
