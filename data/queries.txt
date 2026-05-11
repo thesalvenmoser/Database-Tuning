@@ -1,0 +1,137 @@
+# Q0 Alle Freunde einer bestimmten Person anzeigen
+1|select distinct p1.vorname, p1.nachname, p1.email from person p1, person p2, hatfreund h where p2.vorname = '[[FIRSTNAME]]' and p2.nachname = '[[LASTNAME]]' and p2.email = h.email and p1.email = h.emailfreund;  
+
+# Q1 Alle Teilnehmer einer Gruppe anzeigen
+1|select distinct p1.vorname, p1.nachname, p1.email from person p1, istingruppe ig, gruppe g where p1.email = ig.email and ig.gruppename = g.name and g.name = '[[GROUP]]'
+
+# Q2 Alle Freunde einer Person anzeigen, denen von der Person bereits mehr als n Nachrichten gesendet wurden.
+1|select distinct p1.vorname, p1.nachname, p1.email, count(*) from person p1, person p2, nachricht n, hatfreund h where p2.vorname = '[[FIRSTNAME]]' and p2.nachname = '[[LASTNAME]]' and p2.email = h.email and p1.email = h.emailfreund and n.vonemail = p2.email and n.anemail = p1.email group by p1.vorname,p1.nachname,p1.email having count(*) > 3
+
+# Q3 Alle Bilder anzeigen, auf denen eine bestimmte Person abgebildet ist.
+1|select p.* from photo p, istabgebildet i, person p2 where p2.email = i.personemail and p2.email = '[[EMAIL]]' and p.url=i.photourl
+
+# Q4 Anzahl der Teilnehmer aller Gruppen ausgeben
+1|select distinct g.name, g.beschreibung, count(*) from gruppe g, istingruppe ig where g.name = ig.gruppename group by g.name, g.beschreibung
+
+# Q5 Anzahl der Freunde aller Teilnehmer einer Gruppe ausgeben
+1|select distinct p1.vorname, p1.nachname, p1.email, count(*) from person p1, istingruppe g, hatfreund h, person p2 where h.email = p1.email and h.emailfreund = p2.email and g.email = p1.email and g.gruppename = '[[GROUP]]' group by  p1.vorname, p1.nachname, p1.email
+
+# Q6 Freunde aller Personen, die mit Nachnamen x heissen.
+1|select distinct p1.vorname, p1.nachname, p1.email from person p1, person p2, hatfreund h where p1.email = h.email and p2.email = h.emailfreund and p2.nachname = '[[LASTNAME]]'
+
+# Q7 Alle Photos von Personen, die mit Vornamen Y heissen.
+1|select ph.* from photo ph, person p1 where p1.email = ph.personemail and p1.vorname = '[[FIRSTNAME]]'
+
+# Q8 Alle Photos einer Person anzeigen.
+1|select ph.* from photo ph, istabgebildet i where i.photourl = ph.url and i.personemail = '[[EMAIL]]'
+
+# Q9 Alle Photos von Personen aus einer Gruppe anzeigen.
+1|select p.* from photo p, person p1, istingruppe i where i.email = p1.email and p.personemail = p1.email and i.gruppename = '[[GROUP]]'
+
+# Q10 Vornamen und Nachnamen aller Personen, die an Ihrem Geburtstag eine Nachricht erhalten haben
+1|select distinct p.vorname, p.nachname from person p, nachricht n where  p.email = n.anemail and DAY(p.geburtsdatum)  = DAY(n.datum) and MONTH(p.geburtsdatum)  = MONTH(n.datum) limit 0,1000;
+
+# Q11 Alle Teilnehmer der Gruppe X, die zwischen 01.01.1985 und 01.01.2000 geboren wurden
+5|select distinct p.vorname, p.nachname from person p, istingruppe i where i.email = p.email and i.gruppename = '[[GROUP]]' and p.geburtsdatum > '1985-01-01' and p.geburtsdatum < '2000-01-01' limit 0,1000;
+
+# Q12 Vor- und Nachnamen aller Personen, die auf eigenen Bildern abgebildet sind
+5|select distinct p.vorname, p.nachname from person p, hatfreund h, photo f, istabgebildet b where p.email = f.personemail and h.email = f.personemail and h.emailfreund = b.personemail and b.photourl = f.url limit 0,1000;
+
+# Q13 Vor- und Nachnamen aller Personen, die Mitglieder in genau einer Gruppe sind.
+6|select p.vorname, p.nachname from person p where p.email in (select email from istingruppe i where i.email = p.email  group by email having count(*) >= 1 ) limit 0,1000;
+
+# Q14 Vor- und Nachnamen aller Personen, die Mitglieder einer bestimmten Gruppe sind und Freunde haben, die Mitglieder einer bestimmten (anderen) Gruppe sind.
+10|select p.vorname, p.nachname from person p, istingruppe i where p.email = i.email and i.gruppename = '[[GROUP]]' and p.email in (select email from hatfreund where emailfreund in (select email from istingruppe where gruppename = '[[GROUP]]')) limit 0,1000;
+
+# Q15 Vor- und Nachnamen aller Personen der Gruppe X, die keine Freunde haben, die Mitglieder der Gruppe Y sind.
+10|select p.vorname, p.nachname from person p where p.email in (select email from istingruppe where gruppename = '[[GROUP]]')  and p.email not in (select email from istingruppe where gruppename = '[[GROUP]]')
+
+# Q16 Vor, und Nachnamen von Personen, die in der Gruppe X und der Gruppe Y sind.
+5|select p.vorname, p.nachname from person p where p.email in (select email from istingruppe where gruppename = '[[GROUP]]')  and p.email in (select email from istingruppe where gruppename = '[[GROUP]]') limit 0,1000;          
+
+# Q17
+7|select p.vorname, p.nachname from person p where p.email not in (select email from nachricht where email = p.email and  anemail in (select email from istingruppe where gruppename = '[[GROUP]]')) limit 0,1000;
+
+# Q18
+30|select distinct p.vorname, p.nachname, g.name from person p left outer join gruppe g on g.emailowner = p.email limit 0,1000; 
+
+# Q19
+30|select p.vorname, p.nachname from person p, istabgebildet i, photo f where i.personemail = p.email and f.personemail = p.email and f.url = i.photourl limit 0,1000;
+
+# Q20
+3|select vorname, anzahl from freundecount where email = '[[EMAIL]]' limit 0,1000;
+
+# Q21
+5|select datum from nachricht where vonemail = '[[EMAIL]]' and anemail = '[[EMAIL]]' limit 0,1000;
+
+# Q22
+5|select datum from nachricht where vonemail = '[[EMAIL]]' and anemail = '[[EMAIL]]' and vonemail not in (select vonemail from nachricht where anemail = '[[EMAIL]]') limit 0,1000;
+
+# Q23
+15|select p1.vorname, count(*) from person p1, person p2, istingruppe i1, istingruppe i2 where p1.email = i1.email and p2.email=i2.email and i1.gruppename=i2.gruppename and p2.email = '[[EMAIL]]' group by p1.vorname;
+
+# Q24
+40|select distinct p2.vorname from person p1, person p2, hatfreund h, istingruppe i, photo ph, istabgebildet ab where p1.vorname =  '[[FIRSTNAME]]' and p1.email = h.emailfreund and p2.email = h.email and p1.email = i.email and  ph.personemail = p2.email and ph.url = ab.photourl and ab.personemail = p1.email order by p2.vorname ASC limit 0,1000;
+
+# Q25
+5|select vonemail, anemail from nachricht n, person p1, person p2 where year(datum) = [[YEAR]] and p1.email = n.vonemail and p2.email = n.anemail and p1.vorname = '[[FIRSTNAME]]' and p2.vorname = '[[FIRSTNAME]]' limit 0,1000
+
+# Q26 Freunde vorschlagen: Freunde von Freuenden erster Stufe, die noch keine Freunde sind
+10|select p3.vorname, p3.nachname, p3.email from person p1, person p2, person p3, hatfreund h1, hatfreund h2 where p1.email = '[[EMAIL]]' and p1.email = h1.email and p2.email = h1.emailfreund and h2.email=p2.email and h2.emailfreund=p3.email and p3.email not in (select emailfreund from hatfreund where email = p1.email)
+
+# Q27 Freunde vorschlagen M: Freunde von Freuenden erster Stufe, die noch keine Freunde sind
+2|select p3.vorname, p3.nachname, p3.email from person p1, person p2, person p3, hatfreund h1, hatfreund h2 where p1.email = '[[EMAIL]]' and p1.email = h1.email and p2.email = h1.emailfreund and h2.email=p2.email and h2.emailfreund=p3.email and p3.email not in (select emailfreund from hatfreund where email = p1.email) and p3.geschlecht = 'M'
+
+# Q28 Freunde vorschlagen W: Freunde von Freuenden erster Stufe, die noch keine Freunde sind
+2|select p3.vorname, p3.nachname, p3.email from person p1, person p2, person p3, hatfreund h1, hatfreund h2 where p1.email = '[[EMAIL]]' and p1.email = h1.email and p2.email = h1.emailfreund and h2.email=p2.email and h2.emailfreund=p3.email and p3.email not in (select emailfreund from hatfreund where email = p1.email) and p3.geschlecht = 'W'
+
+# Q29 Alle Nachnamen, die mit y anfangen...
+1|select distinct nachname from person where nachname like '[[LASTNAME1TO2]]%'
+
+# U30 Materialized View Freundecount refreshen
+60|delete from freundecount; insert into freundecount select p.email, p.vorname, p.nachname, count(*) as anzahl from person p, hatfreund h where p.email = h.email group by p.vorname, p.nachname, p.email; [[SLEEP]]; [[COMMIT]];
+
+# U31 Eigentümer aller Photos von X auf Y setzen
+15|update photo set personemail = '[[EMAIL]]' where personemail = '[[EMAIL]]'; [[SLEEP]]; [[COMMIT]];
+
+# U32 Alle Freunde von X auf Freunde von Y setzen; Materialized view neu schreiben
+30|update hatfreund set email = '[[EMAIL]]' where emailfreund = '[[EMAIL]]'; [[SLEEP]]; delete from freundecount; insert into freundecount select p.email, p.vorname, p.nachname, count(*) as anzahl from person p, hatfreund h where p.email = h.email group by p.vorname, p.nachname, p.email; [[SLEEP]]; [[COMMIT]];
+
+# U33 Neuen Freud einfügen; Materialized view neu schreiben
+5|insert into hatfreund (email,emailfreund) values ('[[EMAIL1]]','[[EMAIL2]]'), ('[[EMAIL2]]','[[EMAIL1]]'); [[SLEEP]]; delete from freundecount; insert into freundecount select p.email, p.vorname, p.nachname, count(*) as anzahl from person p, hatfreund h where p.email = h.email group by p.vorname, p.nachname, p.email; [[SLEEP]]; [[COMMIT]];
+
+# U34 Freundschaft zwischen X und Y beenden, Materialized view neu schreiben
+15|delete from hatfreund where email = '[[EMAIL1]]' and emailfreund= '[[EMAIL2]]' or email = '[[EMAIL2]]' and emailfreund= '[[EMAIL1]]'; [[SLEEP]]; delete from freundecount; insert into freundecount select p.email, p.vorname, p.nachname, count(*) as anzahl from person p, hatfreund h where p.email = h.email group by p.vorname, p.nachname, p.email; [[SLEEP]]; [[COMMIT]];
+
+# U35 Alle Abbildungen von X auf Abbildungen von Y setzen
+30|update istabgebildet set personemail = '[[EMAIL]]' where personemail = '[[EMAIL]]'; [[SLEEP]]; [[COMMIT]];
+
+# U36 Zugehörigkeit zu Gruppen von X auf Y ändern
+30|update istingruppe set email = '[[EMAIL1]]' where email = '[[EMAIL2]]'; [[SLEEP]]; [[COMMIT]];
+
+# U37 Neue Gruppenmitgliedschaft für person X setzen
+5|insert into istingruppe (email, gruppename) values ('[[EMAIL1]]', '[[GROUP]]'); [[SLEEP]]; [[COMMIT]];
+
+# U38 Gruppenmitgliedschaft von personX entfernen
+20|delete from istingruppe where email = '[[EMAIL1]]' and gruppename = '[[GROUP]]'; [[SLEEP]]; [[COMMIT]];
+
+# U39 Neue Nachricht senden
+5|insert into nachricht (vonemail,anemail,betreff,datum,messagetext) values ('[[EMAIL]]','[[EMAIL]]','This is a new message!',sysdate(),'This is a new Message, a new message, a new message, a new message, a new message, ...')
+
+# U40 Nachrichten von X an Y mit Betreff 'This is a new message!' löschen
+10|delete from nachricht where vonemail = '[[EMAIL]]' and anemail = '[[EMAIL]]' and betreff = 'This is a new message!' 
+
+# U41 Nachnamen einer weiblichen Person von X auf Y setzen.
+60|SET @oldname = (select nachname from person where geschlecht = 'W' order by RAND() limit 0,1); SET @newname = (select nachname from person where geschlecht = 'W'  order by RAND() limit 0,1); [[SLEEP]]; SET @email= (select email from person where nachname=@oldname and geschlecht='W' limit 0,1); update person set nachname=@newname where email = @email; [[SLEEP]]; [[COMMIT]];  
+
+# U42 Ein neues Photo einfügen
+5|insert into photo (url,titel,beschreibung,personemail) values ('[[URL]]','Some new Photo','Some Description for a cool new photo','[[EMAIL]]'); [[SLEEP]]; COMMIT;
+
+# Q43
+10|select distinct p3.vorname, p3.nachname, p3.email from person p1 join hatfreund h1 ON p1.email = h1.email join person p2 ON p2.email = h1.emailfreund join hatfreund h2 ON h2.email = p2.email join person p3 on p3.email = h2.emailfreund where p1.email = '[[EMAIL]]' and not exists (select emailfreund from hatfreund h where h.email = p1.email and h.emailfreund = p3.email);
+
+# U44
+10|update person set email = '[[EMAIL]]' where email = '[[EMAIL]]'; [[SLEEP]]; [[COMMIT]];
+
+# U45
+10|update hatfreund set email = '[[EMAIL]]' where email = '[[EMAIL]]'; [[SLEEP]]; delete from freundecount; [[SLEEP]]; insert into freundecount select p.email, p.vorname, p.nachname, count(*) as anzahl from person p, hatfreund h where p.email = h.email group by p.vorname, p.nachname, p.email; [[SLEEP]]; [[COMMIT]];
