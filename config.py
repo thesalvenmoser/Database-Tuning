@@ -1,9 +1,15 @@
 # Insert here your own credentials for the DB
+import os
+
+
+userpass = os.getenv('DB_PASSWORD')
+my_secret_pw = os.getenv('DB_ROOT_PASSWORD')
+
 DB_CONFIG = {
     'host': 'localhost',
     'port': 3306,
     'user': 'user',
-    'password': 'userpass',
+    'password': '{userpass}',
     'database': 'socialnet',
     'autocommit': False,
     'allow_local_infile': True
@@ -14,7 +20,7 @@ DB_CONFIG = {
 DB_CONFIG_ROOT = dict(DB_CONFIG)
 DB_CONFIG_ROOT.update({
     'user': 'root',
-    'password': 'my-secret-pw',
+    'password': '{my_secret_pw}',
     'database': 'information_schema', # Don't change this, it is required to get the open connections
 })
 
